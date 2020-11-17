@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+  <head>
+    <title>betq back</title>
+  </head>
+  <body>
+  <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io();
+      socket.emit('find game', {
+        buy_in: 10000,
+        user_id: 0,
+        enter_code: ''
+      });
+      socket.on('no table found', function () {
+        console.log('no table found');
+      });
+      socket.on('player joined', function (data) {
+        console.log(data);
+      });
+    </script>
+  </body>
+</html>
