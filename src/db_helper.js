@@ -14,12 +14,31 @@ class DatabaseHelper {
         let self = this;
         return this.database.ref('/tables/').once('value').then(function (snapshot) {
             for (let tableRef of snapshot.val()) {
+                if (tableRef === undefined) {
+                    continue;
+                }
                 let table = new Table(tableRef.id, tableRef.buy_in, tableRef.max_players,
                     tableRef.enter_code);
                 console.log(table);
                 self.tables.push(table);
             }
         });
+    }
+
+    createTable(request) {
+        let id = this.tables[this.tables.length - 1].id + 1;
+        let data = {
+            buy_in: request.buyIn,
+            max_players: 6,
+            enter_code: request.enterCode,
+            id: id
+        };
+        this.database.ref('/tables/' + id).set(data);
+
+        let table = new Table(data.id, data.buy_in, data.max_players,
+            data.enter_code);
+        console.log(table);
+        this.tables.push(table);
     }
 
     loadQuestions() {
@@ -48,6 +67,14 @@ class DatabaseHelper {
 
     dealQuestionForTable(table) {
         return this.questions[Math.floor(Math.random() * this.questions.length)];
+    }
+
+    handSummary(userId, stackDelta, question) {
+        let ref = this.database.ref('/player_summaries/' + userId).push();
+        ref.set({
+           delta: stackDelta,
+           id_question: question.id
+        });
     }
 }
 

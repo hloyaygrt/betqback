@@ -1,7 +1,12 @@
 // socket io
 var app = require('express')();
 var http = require('http').createServer(app);
-var io = require('socket.io')(http);
+var io = require('socket.io')(http,
+    {
+        cors: {
+            origin: '*'
+        }
+    });
 
 // system
 var fs = require('fs');
@@ -48,51 +53,53 @@ databaseHelper.loadCategories().then(
                             table.addPlayer(new Player(0, 10000, "a"), io);
                             table.addPlayer(new Player(1, 10000, "b"), io);
                             table.startGame(question, io);
-                            console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CALL, 100), io));
-                            console.log(table.gameState);
-                            console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CHECK, 0), io));
-                            console.log(table.gameState);
-                            // street 1
-                            console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CHECK, 0), io));
-                            console.log(table.gameState);
-                            console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.RAISE, 100), io));
-                            console.log(table.gameState);
-                            console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.RAISE, 200), io));
-                            console.log(table.gameState);
-                            console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.FOLD, 0), io));
-                            console.log(table.state, table.players);
+                            table.addPlayer(new Player(2, 10000, "c"), io);
+                            table.removePlayer("c", io, null);
+                            console.log('%j', table);
+
+                            // console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CHECK, 0), io));
+                            // console.log(table.gameState);
+                            // // street 1
+                            // console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CHECK, 0), io));
+                            // console.log(table.gameState);
+                            // console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.RAISE, 100), io));
+                            // console.log(table.gameState);
+                            // console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.RAISE, 200), io));
+                            // console.log(table.gameState);
+                            // console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.FOLD, 0), io));
+                            // console.log(table.state, table.players);
                         }
                     }
                 ).then(
                     function () {
                         if (LOCAL_TEST) {
-                            let table = databaseHelper.tables[0];
-                            let question = databaseHelper.questions[0];
-                            table.startGame(question, io);
-                            console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CALL, 100), io));
-                            console.log(table.gameState);
-                            console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CHECK, 0), io));
-                            console.log(table.gameState);
-                            // street 1
-                            console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CHECK, 0), io));
-                            console.log(table.gameState);
-                            console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CHECK, 0), io));
-                            console.log(table.gameState);
-                            // street 2
-                            console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CHECK, 0), io));
-                            console.log(table.gameState);
-                            console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CHECK, 0), io));
-                            console.log(table.gameState);
-                            // street 3
-                            console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CHECK, 0), io));
-                            console.log(table.gameState);
-                            console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CHECK, 0), io));
-                            console.log(table.gameState);
-                            // answer phase
-                            console.log(table.applyMoveForCurrentPlayer(Move.buildAnswerMove('kek'), io));
-                            console.log(table.gameState);
-                            console.log(table.applyMoveForCurrentPlayer(Move.buildAnswerMove('mda'), io));
-                            console.log(table.gameState);
+                            // let table = databaseHelper.tables[0];
+                            // let question = databaseHelper.questions[0];
+                            // table.startGame(question, io);
+                            // console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CALL, 100), io));
+                            // console.log(table.gameState);
+                            // console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CHECK, 0), io));
+                            // console.log(table.gameState);
+                            // // street 1
+                            // console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CHECK, 0), io));
+                            // console.log(table.gameState);
+                            // console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CHECK, 0), io));
+                            // console.log(table.gameState);
+                            // // street 2
+                            // console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CHECK, 0), io));
+                            // console.log(table.gameState);
+                            // console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CHECK, 0), io));
+                            // console.log(table.gameState);
+                            // // street 3
+                            // console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CHECK, 0), io));
+                            // console.log(table.gameState);
+                            // console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CHECK, 0), io));
+                            // console.log(table.gameState);
+                            // // answer phase
+                            // console.log(table.applyMoveForCurrentPlayer(Move.buildAnswerMove('kek'), io));
+                            // console.log(table.gameState);
+                            // console.log(table.applyMoveForCurrentPlayer(Move.buildAnswerMove('mda'), io));
+                            // console.log(table.gameState);
                         }
                     }
                 );
@@ -105,8 +112,9 @@ if (!LOCAL_TEST) {
     setInterval(
         function () {
             for (let table of databaseHelper.tables) {
-                if (table.players.length > 1 && table.state === TABLE_STATE.STOP) {
-                    console.log('STARTING GAME ON table ' + table.id);
+                let currentTs = +new Date();
+                if (table.players.length > 1 && table.state === TABLE_STATE.STOP
+                    && currentTs - table.lastGameTs > 5000) {
                     let question = databaseHelper.dealQuestionForTable(table);
                     table.startGame(question, io);
                 }
@@ -126,9 +134,9 @@ io.on('connection', function (socket) {
         for (let table of databaseHelper.tables) {
             if (table.buyIn === request.buyIn &&
                 (request.enterCode === '' || request.enterCode === table.enterCode) &&
-                table.players.length !== table.maxPlayers &&
-                table.state !== TABLE_STATE.RUNNING) {
+                table.players.length !== table.maxPlayers) {
                 console.log(`Adding user ${request.userId} to table ${table.id}`);
+                socket.emit('table found');
                 table.addPlayer(new Player(request.userId, request.buyIn, socket.id), io);
                 return;
             }
@@ -149,12 +157,13 @@ io.on('connection', function (socket) {
                     return;
                 }
                 let move = null;
-                if (request.moveType === MOVE_TYPE.ANSWER) {
+                if (request.moveType.value === MOVE_TYPE.ANSWER.value) {
                     move = Move.buildAnswerMove(request.answer);
                 } else {
                     move = new Move(request.moveType, request.bet);
                 }
-                let result = table.applyMoveForCurrentPlayer(move, io);
+                console.log('move came : %j', move);
+                let result = table.applyMoveForCurrentPlayer(move, io, databaseHelper);
                 if (result.error) {
                     socket.emit('error processing move', result);
                 }
@@ -164,30 +173,36 @@ io.on('connection', function (socket) {
         socket.emit('no table found');
     });
 
-    socket.on('ping', (request) => {
+    socket.on('ping', () => {
+        console.log('kek');
         socket.emit('pong');
     });
 
-    socket.on('leave table', (request) => {
+    socket.on('create table', (request) => {
+        console.log('Creating table ' + request);
+        databaseHelper.createTable(request);
+    });
+
+    socket.on('leave table', () => {
+        let res = 0;
         for (let table of databaseHelper.tables) {
-            if (table.id === request.tableId) {
-                if (table.state === TABLE_STATE.STOP) {
-                    if (!table.removePlayer(socket.id, io)) {
-                        socket.emit('wrong tableId');
-                    } else {
-                        socket.emit('table left');
-                    }
-                } else {
-                    console.log('cant remove player from running table :(');
-                }
-                return;
-            }
+            res += table.removePlayer(socket.id, io, databaseHelper);
         }
-        socket.emit('no table found');
+        if (res === 0) {
+            socket.emit('no table found');
+        }
     });
 
     socket.on('disconnect', () => {
         console.log('user disconnected');
+
+        let res = 0;
+        for (let table of databaseHelper.tables) {
+            res += table.removePlayer(socket.id, io, databaseHelper);
+        }
+        if (res > 0) {
+            console.log('Kicked him from ' + res + ' tables');
+        }
     });
 });
 
@@ -195,6 +210,6 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
-http.listen(3000, () => {
-    console.log('listening on *:3000');
+http.listen(3001, () => {
+    console.log('listening on *:3001');
 });
