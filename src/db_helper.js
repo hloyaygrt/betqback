@@ -72,8 +72,53 @@ class DatabaseHelper {
     handSummary(userId, stackDelta, question) {
         let ref = this.database.ref('/player_summaries/' + userId).push();
         ref.set({
-           delta: stackDelta,
-           id_question: question.id
+            delta: stackDelta,
+            id_question: question.id,
+            ts: +new Date()
+        });
+
+        this.database.ref('/users/' + userId).once('value').then(snapshot => {
+            let oldBalance = snapshot.val().balance;
+            let newBalance = oldBalance + stackDelta;
+
+            let updates = {};
+            updates['/users/' + userId + '/balance'] = newBalance;
+            this.database.ref().update(updates);
+        });
+    }
+
+    getSummaries(userId) {
+        return this.database.ref('/player_summaries/' + userId).orderByChild('ts').once('value');
+    }
+
+    getTopPlayers() {
+        return this.database.ref('/player_summaries/').once('value').then(snapshot => {
+            let users = snapshot.val();
+            let players = []
+            for (let user in users) {
+                let totalScore = 0;
+                let totalGames = 0;
+                for (let summaryId in users[user]) {
+                    totalScore += users[user][summaryId].delta;
+                    totalGames += 1;
+                }
+                let avg = totalScore / totalGames;
+                players.push({
+                    winrate: avg,
+                    userId: user
+                });
+            }
+            players.sort((a, b) => {
+                if (a.winrate < b.winrate) {
+                    return +1;
+                }
+                if (a.winrate > b.winrate) {
+                    return -1;
+                }
+                return 0;
+            });
+            console.log(players);
+            return players;
         });
     }
 }

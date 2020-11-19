@@ -193,6 +193,34 @@ io.on('connection', function (socket) {
         }
     });
 
+    socket.on('get stats', (request) => {
+        let userId = request.userId;
+        databaseHelper.getSummaries(userId).then((snapshot) => {
+            let val = snapshot.val();
+
+            let listRes = [0];
+            let x = [0];
+            let cum = 0;
+            let i = 0;
+
+            for (let key in val) {
+                cum += val[key].delta;
+                listRes.push(cum);
+                x.push(++i);
+            }
+
+            socket.emit('stats graph', {
+                y: listRes,
+                x: x
+            });
+        });
+        databaseHelper.getTopPlayers().then((players) => {
+            socket.emit('top players', {
+               players: players.slice(0, 5)
+            });
+        });
+    });
+
     socket.on('disconnect', () => {
         console.log('user disconnected');
 

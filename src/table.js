@@ -231,7 +231,7 @@ class Table {
         this.gameState = new GameState(this.players.length);
         this.initialStacks = [];
         for (let i = 0; i < this.players.length; i++) {
-            this.initialStacks[i].push(this.players[i].stack);
+            this.initialStacks.push(this.players[i].stack);
         }
 
         this.emitState(io);
@@ -265,7 +265,7 @@ class Table {
             // here write hand stats
             for (let i = 0; i < this.gameState.playersCnt; i++) {
                 let delta = this.players[i].stack - this.initialStacks[i];
-                database.handSummary(this.gameState.players[i].id, delta, this.currentQuestion);
+                database.handSummary(this.players[i].id, delta, this.currentQuestion);
             }
         } else {
             console.log('CANT WRITE HS');
