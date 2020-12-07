@@ -11,6 +11,8 @@ var io = require('socket.io')(http,
 var fs = require('fs');
 const path = require('path');
 
+const yandexCheckout = require('yandex-checkout')('768693', 'test_x6niBV_57TSdM83Xh3JX-umDn_RIA6WARIizYjF0ZBQ');
+
 // firebase
 var fb = require("firebase/app");
 var database = require("firebase/database");
@@ -125,6 +127,22 @@ if (!LOCAL_TEST) {
 
 io.on('connection', function (socket) {
     console.log('one user connected ' + socket.id);
+
+    socket.on('create payment', (request) => {
+        yandexCheckout.createPayment({
+            'amount':{
+                'value': '1000.00',
+                'currency': 'RUB',
+            },
+            'confirmation':{
+                'type': 'embedded'
+            }
+        })
+            .then((result) => {
+                socket.emit('yandex kassa response', result.confirmation.confirmation_token)
+            })
+            .catch( err => console.log(err));
+    });
 
     socket.on('find game', (request) => {
         console.log('searching table for player');

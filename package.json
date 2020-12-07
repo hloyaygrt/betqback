@@ -8,6 +8,7 @@
   "dependencies": {
     "express": "^4.15.2",
     "firebase": "~8.0.2",
-    "socket.io": "2.3.0"
+    "socket.io": "2.3.0",
+    "yandex-checkout": "^1.0.13"
   }
 }
