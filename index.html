@@ -12,17 +12,6 @@
       //   user_id: 0,
       //   enter_code: ''
       // });
-
-      socket.emit('create table', {
-        buyIn: 1000,
-        enterCode: 'AAAAB'
-      });
-      socket.on('no table found', function () {
-        console.log('no table found');
-      });
-      socket.on('player joined', function (data) {
-        console.log(data);
-      });
     </script>
   </body>
 </html>

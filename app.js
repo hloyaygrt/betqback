@@ -1,4 +1,3 @@
-// socket io
 var app = require('express')();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http,
@@ -131,14 +130,26 @@ io.on('connection', function (socket) {
         console.log('searching table for player');
         console.log(request);
 
-        for (let table of databaseHelper.tables) {
-            if (table.buyIn === request.buyIn &&
-                (request.enterCode === '' || request.enterCode === table.enterCode) &&
-                table.players.length !== table.maxPlayers) {
-                console.log(`Adding user ${request.userId} to table ${table.id}`);
-                socket.emit('table found');
-                table.addPlayer(new Player(request.userId, request.buyIn, socket.id), io);
-                return;
+        if (request.enterCode !== '') {
+            for (let table of databaseHelper.tables) {
+                if (request.enterCode === table.enterCode &&
+                    table.players.length !== table.maxPlayers) {
+                    console.log(`Adding user ${request.userId} to table ${table.id}`);
+                    socket.emit('table found');
+
+                    table.addPlayer(new Player(request.userId, table.buyIn, socket.id), io);
+                    return;
+                }
+            }
+        } else {
+            for (let table of databaseHelper.tables) {
+                if (table.buyIn === request.buyIn &&
+                    table.players.length !== table.maxPlayers) {
+                    console.log(`Adding user ${request.userId} to table ${table.id}`);
+                    socket.emit('table found');
+                    table.addPlayer(new Player(request.userId, request.buyIn, socket.id), io);
+                    return;
+                }
             }
         }
 
@@ -173,9 +184,9 @@ io.on('connection', function (socket) {
         socket.emit('no table found');
     });
 
-    socket.on('ping', () => {
+    socket.on('pipiping', () => {
         console.log('kek');
-        socket.emit('pong');
+        socket.emit('popopong');
     });
 
     socket.on('create table', (request) => {
@@ -238,6 +249,6 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
-http.listen(3001, () => {
-    console.log('listening on *:3001');
+http.listen(3002, () => {
+    console.log('listening on *:3002');
 });
