@@ -213,6 +213,7 @@ io.on('connection', function (socket) {
 
     socket.on('leave table', () => {
         let res = 0;
+        console.log('Leave table got ' + socket.id);
         for (let table of databaseHelper.tables) {
             res += table.removePlayer(socket.id, io, databaseHelper);
         }

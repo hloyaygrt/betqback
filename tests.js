@@ -58,8 +58,8 @@ function testRemovingPlayer() {
 function testFullGame() {
     let table = databaseHelper.tables[0];
     let question = databaseHelper.questions[0];
-    table.addPlayer(new Player(0, 10000, "a"), io);
-    table.addPlayer(new Player(1, 10000, "b"), io);
+    // table.addPlayer(new Player(0, 10000, "a"), io);
+    // table.addPlayer(new Player(1, 10000, "b"), io);
     table.startGame(question, io);
     console.log(table.applyMoveForCurrentPlayer(new Move(MOVE_TYPE.CALL, 100), io));
     console.log(table.gameState);
