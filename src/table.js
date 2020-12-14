@@ -261,7 +261,7 @@ class Table {
             });
         }
 
-        if (database !== null) {
+        if (database) {
             // here write hand stats
             for (let i = 0; i < this.gameState.playersCnt; i++) {
                 let delta = this.players[i].stack - this.initialStacks[i];

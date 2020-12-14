@@ -109,21 +109,20 @@ databaseHelper.loadCategories().then(
     }
 );
 
-if (!LOCAL_TEST) {
-    setInterval(
-        function () {
-            for (let table of databaseHelper.tables) {
-                let currentTs = +new Date();
-                if (table.players.length > 1 && table.state === TABLE_STATE.STOP
-                    && currentTs - table.lastGameTs > 5000) {
-                    let question = databaseHelper.dealQuestionForTable(table);
-                    table.startGame(question, io);
-                }
+
+setInterval(
+    function () {
+        for (let table of databaseHelper.tables) {
+            let currentTs = +new Date();
+            if (table.players.length > 1 && table.state === TABLE_STATE.STOP
+                && currentTs - table.lastGameTs > 5000) {
+                let question = databaseHelper.dealQuestionForTable(table);
+                table.startGame(question, io);
             }
-        },
-        2000
-    );
-}
+        }
+    },
+    2000
+);
 
 io.on('connection', function (socket) {
     console.log('one user connected ' + socket.id);
